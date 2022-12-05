@@ -1,5 +1,5 @@
 <?php 
-// DEBUG Function Samaj ni aa rahi 
+// DEBUG Function Samaj ni aa rahi VS Test
 $LoadingKey=strtoupper(bin2hex(random_bytes("8")));	// Random Code
 function sh_debug($array){
 	global $con;
