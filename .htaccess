@@ -1,40 +1,65 @@
+# ==========================
+# SECURITY & PERFORMANCE
+# SHcms - SiDHOSTiNG.NET
+# ==========================
+
+# 1️⃣ Force HTTPS
 RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# 2️⃣ Prevent directory listing
+Options -Indexes
 
+# 3️⃣ Protect sensitive files and folders
+<FilesMatch "(^\.|config\.php|composer\.json|composer\.lock|env|env\.example|README\.md)">
+    Require all denied
+</FilesMatch>
 
-# WWW-Remove
-#RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-#RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
-RewriteCond %{HTTP_HOST} !^www\.
-RewriteRule ^(.*)$ http://www.%{HTTP_HOST}/$1 [R=301,L]
+# Block direct access to include, logs, temp folders
+RedirectMatch 403 ^/(include|logs|temp|backup)/.*$
 
+# 4️⃣ Deny access to hidden files (.git, .env)
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_URI} (^|/)\.(git|svn|env) [NC]
+    RewriteRule .* - [F,L]
+</IfModule>
 
-# HTTP to HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+# 5️⃣ Disable script execution in upload directories
+<Directory "/audio/sounds">
+    php_flag engine off
+    Options -ExecCGI
+</Directory>
 
+# 6️⃣ Prevent MIME-type security issues
+AddType application/javascript .js
+AddType text/css .css
+AddType text/html .html
+AddType image/webp .webp
 
+# 7️⃣ Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
 
-# Hotlink Protection
-# RewriteCond %{HTTP_REFERER} !^https://%{HTTP_HOST}/.*$      [NC] 
-# RewriteCond %{HTTP_REFERER} !^https://facebook.com$      [NC]
-RewriteCond %{REQUEST_URI} !^/img/public_links
-# RewriteCond %{REQUEST_URI} !^/page/public_links
-RewriteCond %{HTTP_HOST}@@%{HTTP_REFERER} !^([^@]*)@@https?://\1/.*
-RewriteRule .*\.(jpg|jpeg|gif|png|bmp|js|css)$ - [F,NC]
+# 8️⃣ Caching for performance
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresDefault "access plus 1 week"
+</IfModule>
 
-
-
-# RewriteEngine on 
-# RewriteCond %{HTTP_REFERER} !^$ 
-# RewriteCond %{HTTP_REFERER} !^https://(www.)?my-website.com/.*$ [NC] 
-# RewriteRule .(jpg|jpeg|gif|png|bmp)$ - [F]
-
-
-
-# Trafic
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-l
-# All Trafic to index.php
-RewriteRule ^(.+)$ ?MyURL=$1 [QSA,L]
+# 9️⃣ Prevent access to backup or temporary files
+<FilesMatch "\.(bak|old|orig|tmp|save|swp)$">
+    Require all denied
+</FilesMatch>
