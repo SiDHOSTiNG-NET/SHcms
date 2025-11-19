@@ -16,6 +16,7 @@ include_once("include/Function/sh_EANcheck.php");
 // F
 
 include_once("include/Function/sh_file_get_contents.php");
+include_once("include/Function/form_templates.php");
 
 // P
 

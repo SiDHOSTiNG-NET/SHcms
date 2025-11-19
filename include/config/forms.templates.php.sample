@@ -1,0 +1,16 @@
+<?php
+/**
+ * Kopieer dit bestand naar include/config/forms.templates.php
+ * en voeg eigen templates of overrides toe.
+ */
+return [
+    // 'contact-basic' => [
+    //     'submit_text' => 'Direct versturen',
+    //     'fields' => [
+    //         [
+    //             'name' => 'full_name',
+    //             'label' => 'Volledige naam',
+    //         ],
+    //     ],
+    // ],
+];
